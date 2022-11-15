@@ -1,9 +1,11 @@
 - GitHub repository : https://github.com/amiraelsayed/Project3
-- S3 Bucket : 
+- S3 Bucket : arn:aws:s3:::udaproject-kk1j287dhjppmz437
 - CloudFront distribution :
-- deployed application back-end in EC2 :
+- Deployed application back-end in EC2 :
 - Prometheus Server :
 - SCREENSHOT01 : /screenshots/SCREENSHOT01.png
 - SCREENSHOT02 : /screenshots/SCREENSHOT02.png
 - SCREENSHOT03 : /screenshots/SCREENSHOT03.png
 - SCREENSHOT04 : /screenshots/SCREENSHOT04.png , /screenshots/SCREENSHOT04-1.png
+
+- Presentation : presentation.pdf
