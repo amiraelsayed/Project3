@@ -1,10 +1,9 @@
 # Use the latest 2.1 version of CircleCI pipeline process engine.
 version: 2.1
-
 jobs:
   build-frontend:
     docker:
-      - image: cimg/node:13.8.0
+      - image: cimg/node:19.0.1
     steps:
       - checkout
       - restore_cache:
@@ -21,7 +20,7 @@ jobs:
 
   build-backend:
     docker:
-      - image: cimg/node:13.8.0
+      - image: cimg/node:19.0.1
     steps:
       - checkout
       - restore_cache:
@@ -36,10 +35,9 @@ jobs:
           paths: [backend/node_modules]
           key: backend-build
 
-workflow:
+workflows:
   default:
     jobs:
       - build-frontend
       - build-backend
-
-      
+    
