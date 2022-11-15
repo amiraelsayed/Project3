@@ -4,3 +4,4 @@
 - deployed application back-end in EC2 :
 - Prometheus Server :
 - SCREENSHOT01 : /screenshots/SCREENSHOT01.png
+- SCREENSHOT02 : /screenshots/SCREENSHOT02.png
