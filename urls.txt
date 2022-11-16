@@ -1,5 +1,5 @@
 - GitHub repository : https://github.com/amiraelsayed/Project3
-- S3 Bucket : arn:aws:s3:::udaproject-kk1j287dhjppmz437
+- S3 Bucket : http://udaproject-kk1j287dhjppmz437.s3-website-us-east-1.amazonaws.com/
 - CloudFront distribution :
 - Deployed application back-end in EC2 :
 - Prometheus Server :
