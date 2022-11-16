@@ -222,7 +222,7 @@ jobs:
           name: Install dependencies
           command: |
             apt update
-            apt install ansible -y whatever
+            apt install ansible -y
             ansible --version
       - run:
           name: Configure server
