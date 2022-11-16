@@ -275,8 +275,10 @@ jobs:
             sudo npm install python
             sudo apt update
             sudo apt install ansible -y
-            sudo pip install awscli
-            aws --version
+            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+            unzip awscliv2.zip
+            sudo ./aws/install
+            aws -- version
       - run:
           name: Get backend url
           command: |
