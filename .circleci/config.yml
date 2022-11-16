@@ -269,10 +269,12 @@ jobs:
       - checkout
       - restore_cache:
           keys: [frontend-build]
-      #- run:
-       #   name: Install dependencies
-        #  command: |
-            # your code here
+      - run:
+          name: Install dependencies
+          command: |
+            npm install python
+            apt update
+            apt install ansible -y
       - run:
           name: Get backend url
           command: |
@@ -307,10 +309,12 @@ jobs:
           fingerprints: ["b3:ba:a4:12:a5:01:79:f8:05:ce:9e:25:ba:f1:e7:63"]
       - attach_workspace:
           at: .
-      #- run:
-       #   name: Install dependencies
-        #  command: |
-            # your code here
+      - run:
+          name: Install dependencies
+          command: |
+            npm install python
+            apt update
+            apt install ansible -y
       - run:
           name: Deploy backend
           command: |
