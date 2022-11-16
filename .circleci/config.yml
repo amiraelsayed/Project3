@@ -275,6 +275,8 @@ jobs:
             sudo npm install python
             sudo apt update
             sudo apt install ansible -y
+            sudo pip install awscli
+            aws --version
       - run:
           name: Get backend url
           command: |
