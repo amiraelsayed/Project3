@@ -272,9 +272,9 @@ jobs:
       - run:
           name: Install dependencies
           command: |
-            npm install python
-            apt update
-            apt install ansible -y
+            sudo npm install python
+            sudo apt update
+            sudo apt install ansible -y
       - run:
           name: Get backend url
           command: |
@@ -312,9 +312,9 @@ jobs:
       - run:
           name: Install dependencies
           command: |
-            npm install python
-            apt update
-            apt install ansible -y
+            sudo npm install python
+            sudo apt update
+            sudo apt install ansible -y
       - run:
           name: Deploy backend
           command: |
