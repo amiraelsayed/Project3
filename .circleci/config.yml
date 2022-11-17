@@ -277,7 +277,9 @@ jobs:
             sudo apt install ansible -y
             sudo apt install python3-pip -y
             sudo pip install awscli
-            aws --version
+            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscli.zip"
+            unzip awscli.zip
+            sudo ./aws/install
       - run:
           name: Get backend url
           command: |
@@ -359,7 +361,9 @@ jobs:
             sudo apt install curl
             sudo apt install python3-pip -y
             sudo pip install awscli
-            aws --version
+            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscli.zip"
+            unzip awscli.zip
+            sudo ./aws/install
       - run:
           name: Get backend url
           command: |
