@@ -273,13 +273,7 @@ jobs:
           name: Install dependencies
           command: |
             sudo apt updates
-            sudo npm install python
-            sudo apt install ansible -y
-            sudo apt install python3-pip -y
-            sudo pip install awscli
-            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscli.zip"
-            unzip awscli.zip
-            sudo ./aws/install
+            sudo apt install tar gzip nodejs npm aws-cli
       - run:
           name: Get backend url
           command: |
@@ -317,9 +311,8 @@ jobs:
       - run:
           name: Install dependencies
           command: |
-            sudo npm install python
-            sudo apt update
-            sudo apt install ansible -y
+            sudo apt updates
+            sudo apt install tar gzip nodejs npm aws-cli
             sudo apt get install npm
             sudo npm i -g pm2
       - run:
