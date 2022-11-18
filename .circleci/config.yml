@@ -217,7 +217,7 @@ jobs:
       - add_ssh_keys:
           fingerprints: ["27:4e:39:ad:07:93:4a:f8:f0:94:66:ec:fd:8d:46:9f"]
       - attach_workspace:
-          at: .
+          at: ~/
       - run:
           name: Install dependencies
           command: |
@@ -295,6 +295,10 @@ jobs:
       - save_cache:
           paths: [frontend/node_modules]
           key: frontend-build
+      - persist_to_workspace:
+          root: ~/
+          paths:
+            - project/frontend/dist
       - destroy_environment:
           id: ${CIRCLE_WORKFLOW_ID:0:7}
           when: on_fail  
@@ -309,7 +313,7 @@ jobs:
       - add_ssh_keys:
           fingerprints: ["27:4e:39:ad:07:93:4a:f8:f0:94:66:ec:fd:8d:46:9f"]
       - attach_workspace:
-          at: .
+          at: ~/
       - run:
           name: Install dependencies
           command: |
