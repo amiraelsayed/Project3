@@ -11,6 +11,12 @@
 
 - name: "Install Deployment"
   shell: |
+      sudo apt update
+      curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash -
+      sudo apt-get install -y nodejs
+      sudo npm install -g n
+      sudo n 13.8.0
+
       cd ~/backend-app
       npm install typescript -g
       npm i
