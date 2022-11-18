@@ -7,8 +7,20 @@
     - ansible_python_interpreter: /usr/bin/python3
     - ansible_host_key_checking: false
     - ansible_stdout_callback: yaml
-  roles:
-    - deploy
+
+  pre_tasks:
+    - name: "wait 600 seconds for target connection to become reachable/usable."
+      wait_for_connection:
+        timeout: 600
+
+    - name: "install python for Ansible."
+      command: |
+        sudo apt install npm -y
+        sudo npm install python
+        sudo apt update
+        sudo apt install ansible -y
+        sudo ansible --version
+  
   environment:
     - ENVIRONMENT: production
     - TYPEORM_CONNECTION: "{{ lookup('env', 'TYPEORM_CONNECTION') }}"
@@ -21,13 +33,8 @@
     - TYPEORM_MIGRATIONS: "{{ lookup('env', 'TYPEORM_MIGRATIONS')}}"
     - TYPEORM_MIGRATIONS_DIR: "{{ lookup('env', 'TYPEORM_MIGRATIONS_DIR')}}"
 
-  pre_tasks:
-    - name: "wait 600 seconds for target connection to become reachable/usable."
-      wait_for_connection:
-        timeout: 600
+  roles:
+    - deploy
 
-    - name: "install python for Ansible."
-      shell: |
-        test -e /usr/bin/python3 || (apt -y update && apt install -y python3)
-      changed_when: false
+  
  
