@@ -322,6 +322,7 @@ jobs:
           name: Package backend
           command: |
             cd backend
+            apt install sudo
             sudo npm install typescript -g
             npm install
             npm run build
