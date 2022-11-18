@@ -15,7 +15,12 @@
 
     - name: "install python for Ansible."
       command: |
-        sudo apt install npm -y
+        sudo apt update
+        curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash -
+        sudo apt-get install -y nodejs
+        sudo npm install -g n
+        sudo n 13.8.0
+        
         sudo npm install python
         sudo apt update
         sudo apt install ansible -y
