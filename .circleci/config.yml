@@ -305,7 +305,7 @@ jobs:
                     
   deploy-backend:
     docker:
-      - image: python:3.9.0-alpine
+      - image: cimg/node:13.8.0
     steps:
       - checkout
       - restore_cache:
@@ -317,18 +317,51 @@ jobs:
       - run:
           name: Install dependencies
           command: |
-            apk add --update --no-cache tar gzip nodejs npm aws-cli ansible curl
+            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+            unzip awscliv2.zip
+            sudo ./aws/install
+
+            sudo apt update
+            curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash -
+            sudo apt-get install -y nodejs
+            sudo npm install -g n
+            sudo n 13.8.0
+
+            sudo apt update
+            sudo apt install --yes software-properties-common
+            sudo add-apt-repository --yes --update ppa:ansible/ansible
+            sudo apt install ansible --yes
+
+            cd backend
+            npm install
       - run:
           name: Package backend
           command: |
             cd backend
-            apt install sudo
             sudo npm install typescript -g
             npm install
             npm run build
             tar -czf artifact.tar.gz dist/* package*
             cd ..
             sudo cp backend/artifact.tar.gz /home/
+      - run:
+          name: Deploy backend
+          command: |
+            export TYPEORM_MIGRATIONS_DIR=./migrations
+            export TYPEORM_ENTITIES=./modules/domain/**/*.entity{.ts,.js}
+            export TYPEORM_MIGRATIONS=./migrations/*.ts
+            cd .circleci/ansible/
+            echo "[web]" > inventory.txt
+            BACKEND_PUBLIC_IF=$(aws ec2 describe-instances \
+              --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" \
+              --query 'Reservations[*].Instances[*].PublicIpAddress' \
+              --output text)
+            echo $BACKEND_PUBLIC_IF >> inventory.txt
+            cat inventory.txt
+            sudo sed -i 's/host_key_checking = True/host_key_checking = False/g' /etc/ansible/ansible.cfg
+            sudo sed -i 's/host_key_checking=True/host_key_checking = False/g' /etc/ansible/ansible.cfg
+            ANSIBLE_HOST_KEY_CHECKING=False
+            ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -i inventory.txt deploy-backend.yml
       - save_cache:
           paths: [backend/node_modules]
           key: backend-build
