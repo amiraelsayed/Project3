@@ -39,7 +39,3 @@
     - configure-server
     - configure-prometheus-node-exporter
     
-
-#ENVIRONMENT: "{{ lookup('env', 'ENVIRONMENT') }}"
-#NODE_ENV: "{{ lookup('env','NODE_ENV') }}"
-#VERSION: "{{ lookup('env', 'VERSION') }}"
