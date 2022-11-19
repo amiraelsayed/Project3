@@ -12,7 +12,9 @@
 - name: "Install Deployment 1"
   command: |
     sudo apt install curl -y
+    echo "curl success"
     sudo apt install ansible -y
+    echo "ansible success"
     
 
 - name: "Hi test"
