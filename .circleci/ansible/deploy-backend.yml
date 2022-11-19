@@ -26,9 +26,8 @@
         timeout: 600
 
     - name: "install python for Ansible."
-      command: |
-        #test -e /usr/bin/python3 || (apt -y update && apt install -y python3)
-        apt -y update && apt install -y python3
+      shell: |
+        test -e /usr/bin/python3 || (apt -y update && apt install -y python3)
 
       changed_when: false
 
