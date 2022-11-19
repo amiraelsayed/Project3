@@ -28,6 +28,11 @@
     cd ~/backend-app
     npm install
 
+- name: "Install PM2"
+  npm:
+    name: pm2
+    global: yes
+
 - name: "Exec PM2"
   shell: |
     cd ~/backend-app/dist
