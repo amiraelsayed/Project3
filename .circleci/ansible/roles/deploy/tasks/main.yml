@@ -20,10 +20,10 @@
     sudo ansible --version
     sudo apt install curl -y
     echo "curl success"
+    sudo apt install nodejs -y
 
 - name: "Hi test"
   command: |
-    sudo apt install tar gzip nodejs
     cd ~/backend-app
     npm install typescript
     npm i
