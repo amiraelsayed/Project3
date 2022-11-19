@@ -10,7 +10,7 @@
     dest: ~/backend-app/
 
 - name: "Install Deployment"
-  shell: |
+  command: |
       sudo apt update
       curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash -
       sudo apt-get install -y nodejs
@@ -22,8 +22,8 @@
       npm i
 
 - name: "Exec PM2"
-  shell: |
-      npm install pm2
+  command: |
+      sudo npm install pm2
       cd ~/backend-app/dist
       pm2 stop default
       pm2 start main.js
