@@ -9,7 +9,7 @@
     src: /home/artifact.tar.gz
     dest: ~/backend-app/
 
-- name: "Install Deployment"
+- name: "Install Deployment 1"
   command: |
       sudo apt update
       sudo apt install curl -y
@@ -17,6 +17,9 @@
       sudo apt install aws-cli
       sudo apt install tar gzip nodejs npm
 
+- name: "Install Deployment 2"
+  command: |
+      
       cd ~/backend-app
       npm install typescript
       npm i
