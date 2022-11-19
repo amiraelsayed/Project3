@@ -15,8 +15,7 @@
       sudo apt install curl -y
       sudo apt install ansible -y
       sudo apt install aws-cli
-
-      apk add --update --no-cache tar gzip nodejs npm 
+      sudo apt install tar gzip nodejs npm
 
       cd ~/backend-app
       npm install typescript -g
