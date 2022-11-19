@@ -12,25 +12,22 @@
 - name: "Install Deployment 1"
   command: |
     sudo apt install npm -y
-    echo "npm success"
     sudo npm install python
-    echo "python success"
     sudo apt update
     sudo apt install ansible -y
     sudo ansible --version
     sudo apt install curl -y
-    echo "curl success"
     sudo apt install nodejs -y
+    npm install typescript
+    sudo npm install pm2
 
 - name: "Hi test"
   command: |
     cd ~/backend-app
-    npm install typescript
-    npm i
+    npm install
 
 - name: "Exec PM2"
   command: |
-    sudo npm install pm2
     cd ~/backend-app/dist
     pm2 stop default
     pm2 start main.js
