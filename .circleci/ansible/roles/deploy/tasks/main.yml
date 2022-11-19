@@ -11,13 +11,14 @@
 
 - name: "Install Deployment 1"
   command: |
-    apt install curl -y
-    apt install ansible -y
-    apt install aws-cli
-    apt install tar gzip nodejs npm
+    sudo apt install curl -y
+    sudo apt install ansible -y
+    
 
 - name: "Hi test"
   command: |
+    sudo apt install aws-cli
+    sudo apt install tar gzip nodejs npm
     cd ~/backend-app
     npm install typescript
     npm i
