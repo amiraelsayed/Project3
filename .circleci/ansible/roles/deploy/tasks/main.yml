@@ -11,11 +11,11 @@
 
 - name: "Install Deployment 1"
   command: |
-    sudo apt update
-    sudo apt install curl -y
-    sudo apt install ansible -y
-    sudo apt install aws-cli
-    sudo apt install tar gzip nodejs npm
+    apt update
+    apt install curl -y
+    apt install ansible -y
+    apt install aws-cli
+    apt install tar gzip nodejs npm
 
 - name: "Hi test"
   command: |

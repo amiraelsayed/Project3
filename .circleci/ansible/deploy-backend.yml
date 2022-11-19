@@ -1,5 +1,5 @@
 ---
-- name: "Deploy and start backend server" 
+- name: "Deploy and start backend server"
   hosts: web
   user: ubuntu
   gather_facts: false
@@ -33,6 +33,3 @@
 
   roles:
     - deploy
-
-  
- 

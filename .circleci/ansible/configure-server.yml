@@ -1,5 +1,5 @@
 ---
-- name: Configuration of udapeople 
+- name: Configuration of udapeople
   hosts: web
   user: ubuntu
   gather_facts: false
@@ -38,4 +38,3 @@
   roles:
     - configure-server
     - configure-prometheus-node-exporter
-    
