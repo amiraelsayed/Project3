@@ -23,7 +23,7 @@
 
 - name: "Hi test"
   shell: |
-    ls
+    sudo apt install -y nodejs
     cd ~/backend-app
     npm install
 
