@@ -23,8 +23,7 @@
 
 - name: "Hi test"
   command: |
-    sudo apt install aws-cli
-    sudo apt install tar gzip nodejs npm
+    sudo apt install tar gzip nodejs
     cd ~/backend-app
     npm install typescript
     npm i
