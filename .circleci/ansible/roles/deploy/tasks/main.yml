@@ -1,14 +1,4 @@
 ---
-- name: "Create Directory"
-  file:
-    path: ~/backend-app
-    state: directory
-
-- name: "Unarchive Artifact"
-  unarchive:
-    src: /home/artifact.tar.gz
-    dest: ~/backend-app/
-
 - name: "Install Deployment 1"
   command: |
     sudo apt install npm -y
@@ -20,6 +10,16 @@
     sudo apt install nodejs -y
     npm install typescript
     sudo npm install pm2
+    
+- name: "Create Directory"
+  file:
+    path: ~/backend-app
+    state: directory
+
+- name: "Unarchive Artifact"
+  unarchive:
+    src: /home/artifact.tar.gz
+    dest: ~/backend-app/
 
 - name: "Hi test"
   command: |
