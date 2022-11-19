@@ -27,8 +27,8 @@
 
     - name: "install python for Ansible."
       command: |
-        sudo apt install ansible -y
-        sudo ansible --version
+        test -e /usr/bin/python3 || (apt -y update && apt install -y python3)
+
       changed_when: false
 
   roles:
