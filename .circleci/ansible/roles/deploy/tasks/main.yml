@@ -11,27 +11,26 @@
 
 - name: "Install Deployment 1"
   command: |
-      sudo apt update
-      sudo apt install curl -y
-      sudo apt install ansible -y
-      sudo apt install aws-cli
-      sudo apt install tar gzip nodejs npm
+    sudo apt update
+    sudo apt install curl -y
+    sudo apt install ansible -y
+    sudo apt install aws-cli
+    sudo apt install tar gzip nodejs npm
 
-- name: "Install Deployment 2"
+- name: "Hi test"
   command: |
-      
-      cd ~/backend-app
-      npm install typescript
-      npm i
+    cd ~/backend-app
+    npm install typescript
+    npm i
 
 - name: "Exec PM2"
   command: |
-      sudo npm install pm2
-      cd ~/backend-app/dist
-      pm2 stop default
-      pm2 start main.js
-      
+    sudo npm install pm2
+    cd ~/backend-app/dist
+    pm2 stop default
+    pm2 start main.js
+
 - name: "PM2 as a service"
   shell: |
-      sudo su -c "env PATH:$PATH:/usr/local/bin pm2 startup systemd -u ubuntu --hp /home/ubuntu"
-      pm2 save
+    sudo su -c "env PATH:$PATH:/usr/local/bin pm2 startup systemd -u ubuntu --hp /home/ubuntu"
+    pm2 save
