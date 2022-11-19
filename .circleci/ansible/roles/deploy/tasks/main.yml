@@ -11,7 +11,6 @@
 
 - name: "Install Deployment 1"
   command: |
-    apt update
     apt install curl -y
     apt install ansible -y
     apt install aws-cli
