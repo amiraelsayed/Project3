@@ -10,7 +10,7 @@
     sudo apt install nodejs -y
     npm install typescript
     sudo npm install pm2
-    
+
 - name: "Create Directory"
   file:
     path: ~/backend-app
@@ -23,6 +23,7 @@
 
 - name: "Hi test"
   command: |
+    ls
     cd ~/backend-app
     npm install
 
