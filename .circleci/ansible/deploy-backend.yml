@@ -1,5 +1,5 @@
 ---
-- name: "Deploy and start backend server"
+- name: "Deploy Backend"
   hosts: web
   user: ubuntu
   gather_facts: false
@@ -25,7 +25,7 @@
       wait_for_connection:
         timeout: 600
 
-    - name: "install python for Ansible."
+    - name: "Install Python"
       shell: |
         test -e /usr/bin/python3 || (apt -y update && apt install -y python3)
 
