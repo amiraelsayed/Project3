@@ -1,46 +1,33 @@
 ---
-- name: "Install Deployment 1"
-  command: |
-    sudo apt install npm -y
-    sudo npm install python
-    sudo apt update
-    sudo apt install ansible -y
-    sudo ansible --version
-    sudo apt install curl -y
-    sudo apt install nodejs -y
-    npm install typescript
-    sudo npm install pm2
-
-- name: "Create Directory"
+- name: "Create Dir"
   file:
     path: ~/backend-app
     state: directory
 
-- name: "Unarchive Artifact"
+- name: "Unarchive"
   unarchive:
     src: /home/artifact.tar.gz
     dest: ~/backend-app/
 
-- name: "Hi test"
-  shell: |
-    curl -sL https://deb.nodesource.com/setup_14.x | sudo -E bash -
-    sudo apt-get install -y nodejs
-    cd ~/backend-app
-    npm install
+#- name: Copy backend files
+#  become: true
+#  copy:
+#      src: /home/artifact.tar.gz
+#      dest: /home/ubuntu/artifact.tar.gz
 
-- name: "Install PM2"
-  become: true
-  npm:
-    name: pm2
-    global: yes
+- name: "Install dep"
+  shell: |
+      cd ~/backend-app
+      npm install typescript -g
+      npm i
 
 - name: "Exec PM2"
   shell: |
-    cd ~/backend-app/dist
-    pm2 stop default
-    pm2 start main.js
+      cd ~/backend-app/dist
+      pm2 stop default
+      pm2 start main.js
 
 - name: "PM2 as a service"
   shell: |
-    sudo su -c "env PATH:$PATH:/usr/local/bin pm2 startup systemd -u ubuntu --hp /home/ubuntu"
-    pm2 save
+      sudo su -c "env PATH:$PATH:/usr/local/bin pm2 startup systemd -u ubuntu --hp /home/ubuntu"
+      pm2 save
