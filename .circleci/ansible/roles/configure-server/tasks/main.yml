@@ -1,17 +1,17 @@
 ---
-- name: "Install NodeJs"
+- name: "Install NodeJs Using cURL"
   become: true
   shell: |
     curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash -
     sudo apt-get install -y nodejs
 
-- name: "Configure NodeJs"
+- name: "Configure NodeJs to be version 13.8.0 and to be compitible with used img"
   become: true
   shell: |
     sudo npm install -g n
     sudo n 13.8.0
 
-- name: "Install pm2"
+- name: "Install PM2 Web server"
   become: true
   shell: |
     npm install pm2 -g

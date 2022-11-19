@@ -1,8 +1,247 @@
+#----------------------------------------------------------------
+# Use the latest 2.1 version of CircleCI pipeline process engine.
+#----------------------------------------------------------------
 version: 2.1
 
+#----------------------------------------------------------------
+# Commands
+#----------------------------------------------------------------
+
 commands:
-  install_awscli:
-    description: Install AWS CLI v2
+  cmd_build-frontend:
+    description: Build frontend commands
+    steps:
+      - run:
+          name: Build front-end
+          command: |
+            cd frontend
+            npm install
+            npm run build
+            sudo npm install typescript -g
+  cmd_build-backend:
+    description: Build backend commands
+    steps:
+      - run:
+          name: Build backend-end
+          command: |
+            cd backend
+            sudo npm install typescript -g
+            sudo npm install
+            sudo npm run build
+  cmd_test-frontend:
+    description: test frontend commands
+    steps:
+      - run:
+          name: test front-end
+          command: |
+            cd frontend
+            sudo npm install
+            sudo npm test
+  cmd_test-backend:
+    description: test backend commands
+    steps:
+      - run:
+          name: test back-end
+          command: |
+            cd backend
+            sudo npm install
+            sudo npm test --updateSnapshot
+  cmd_scan-frontend:
+    description: scan frontend commands
+    steps:
+      - run:
+          name: scan front-end
+          command: |
+            cd frontend
+            npm install --save
+            exit 0
+            npm audit fix --audit-level=critical --force
+            npm audit fix --force
+            npm audit --audit-level=critical
+  cmd_scan-backend:
+    description: scan backend commands
+    steps:
+      - run:
+          name: scan back-end
+          command: |
+            cd backend
+            sudo npm install
+            sudo npm audit fix --audit-level=critical --force
+            sudo npm audit fix --audit-level=critical --force
+            sudo npm audit --audit-level=critical
+  cmd_check-backend-infra:
+    description: Ensure back-end infrastructure exists
+    steps:
+      - run:
+          name: Ensure back-end infrastructure exists
+          command: |
+            aws cloudformation deploy \
+              --template-file .circleci/files/backend.yml \
+              --tags project=udapeople \
+              --stack-name "udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}" \
+              --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}"
+  cmd_check-frontend-infra:
+    description: Ensure front-end infrastructure exists
+    steps:
+      - run:
+          name: Ensure front-end infrastructure exists
+          command: |
+            aws cloudformation deploy \
+              --template-file .circleci/files/frontend.yml \
+              --tags project=udapeople \
+              --stack-name "udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}" \
+              --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}"
+  cmd_add-backend-inventory:
+    description: Add back-end ip to ansible inventory
+    steps:
+      - run:
+          name: Add back-end ip to ansible inventory
+          command: |
+            BACKEND_PUBLIC_IP=$(aws ec2 describe-instances \
+              --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" \
+              --query 'Reservations[*].Instances[*].PublicIpAddress' \
+              --output text)
+            echo $BACKEND_PUBLIC_IP >> .circleci/ansible/inventory.txt
+            cat .circleci/ansible/inventory.txt
+  cmd_configure-infra-dep:
+    description: Install dependencies of configure infra
+    steps:
+      - run:
+          name: Install dependencies of configure infra
+          command: |
+            sudo -E apt-add-repository ppa:ansible/ansible
+            sudo apt update
+            sudo apt install ansible
+  cmd_configure-server:
+    description: Configure server
+    steps:
+      - run:
+          name: Configure server
+          working_directory: .circleci/ansible/
+          command: |
+            echo "[web]" > inventory.txt
+            BACKEND_PUBLIC_IF=$(aws ec2 describe-instances \
+              --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" \
+              --query 'Reservations[*].Instances[*].PublicIpAddress' \
+              --output text)
+            echo $BACKEND_PUBLIC_IF >> inventory.txt
+            cat inventory.txt
+            ansible-playbook -i inventory.txt configure-server.yml
+  cmd_prepare-nodejs:
+    description: Install AWS CLI v2 using cURL
+    steps:
+      - run:
+          name: Install aws cli v2
+          command: |
+            cd backend
+            sudo npm cache clean --force
+            sudo rm -rf node_modules
+            sudo npm install
+            npm run migrations:revert
+            npm run migrations > migrations_dump.txt
+            cat migrations_dump.txt
+            if grep -q "has been executed successfully." migrations_dump.txt
+            then
+              curl --insecure https://kvdb.io/YHfkL8imZwJhHwV2UGVznq/migration_${CIRCLE_WORKFLOW_ID:0:7} -d '1'
+            fi
+              echo "Can not add to kvdb"
+  cmd_get-backend-url:
+    description: Get Backend URL
+    steps:
+      - run:
+          name: Get Backend URL
+          command: |
+            cd frontend
+            API_URL=$(aws ec2 describe-instances \
+              --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" \
+              --query 'Reservations[*].Instances[*].PublicIpAddress' \
+              --output text)
+            echo "API_URL=http://${API_URL}:3030" > ".env"
+            echo "ENVIRONMENT=production" >> ".env"
+            echo "NODE_ENV=production" >> ".env"
+            cat .env
+            npm install
+            sudo npm install typescript -g
+            npm run build
+            aws s3 cp dist s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --recursive
+            echo "s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7}"
+  cmd_deploy-backend-dep:
+    description: Backend dependencies
+    steps:
+      - run:
+          name: Backend dependencies
+          command: |
+            cd backend
+            npm install
+  cmd_deploy-backend-packages:
+    description: Backend packages
+    steps:
+      - run:
+          name: Backend packages
+          command: |
+            cd backend
+            sudo npm install typescript -g
+            npm install
+            npm run build
+            tar -czf artifact.tar.gz dist/* package*
+            cd ..
+            sudo cp backend/artifact.tar.gz /home/
+  cmd_deploy-backend:
+    description: Deploy backend
+    steps:
+      - run:
+          name: Deploy backend
+          command: |
+            export TYPEORM_MIGRATIONS_DIR=./migrations
+            export TYPEORM_ENTITIES=./modules/domain/**/*.entity{.ts,.js}
+            export TYPEORM_MIGRATIONS=./migrations/*.ts
+            cd .circleci/ansible/
+            echo "[web]" > inventory.txt
+            BACKEND_PUBLIC_IF=$(aws ec2 describe-instances \
+              --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" \
+              --query 'Reservations[*].Instances[*].PublicIpAddress' \
+              --output text)
+            echo $BACKEND_PUBLIC_IF >> inventory.txt
+            cat inventory.txt
+            sudo sed -i 's/host_key_checking = True/host_key_checking = False/g' /etc/ansible/ansible.cfg
+            sudo sed -i 's/host_key_checking=True/host_key_checking = False/g' /etc/ansible/ansible.cfg
+            ANSIBLE_HOST_KEY_CHECKING=False
+            ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -i inventory.txt deploy-backend.yml
+  cmd_smoke-backend:
+    description: Backend smoke test
+    steps:
+      - run:
+          name: Backend smoke test
+          command: |
+            BACKEND_PUBLIC_IF=$(aws ec2 describe-instances \
+              --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" \
+              --query 'Reservations[*].Instances[*].PublicIpAddress' \
+              --output text)
+            if curl -s http://${BACKEND_PUBLIC_IF}:3030/api/status | grep -i "ok"
+            then
+              echo "Backend Success, but this is intentional error :)"
+              exit 0
+            else
+              echo "Backend Fail!"
+              exit 1
+            fi
+  cmd_smoke-frontend:
+    description: Frontend smoke test
+    steps:
+      - run:
+          name: Frontend smoke test
+          command: |
+            FRONTEND_URL="http://udapeople-${CIRCLE_WORKFLOW_ID:0:7}.s3-website-${AWS_DEFAULT_REGION}.amazonaws.com"
+            if curl -s $FRONTEND_URL | grep -i "Welcome"
+            then
+              echo "Frontend Success!"
+              exit 1
+            else
+              echo "Frontend Fail!"
+              exit 1
+            fi
+  cmd_awscli:
+    description: Install AWS CLI v2 using cURL
     steps:
       - run:
           name: Install aws cli v2
@@ -10,7 +249,7 @@ commands:
             curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
             unzip awscliv2.zip
             sudo ./aws/install
-  install_ansible:
+  cmd_ansible:
     description: Install Ansible v2
     steps:
       - run:
@@ -20,7 +259,7 @@ commands:
             sudo apt install --yes software-properties-common
             sudo add-apt-repository --yes --update ppa:ansible/ansible
             sudo apt install ansible --yes
-  install_nodejs:
+  cmd_nodejs:
     description: Install nodejs
     steps:
       - run:
@@ -54,22 +293,6 @@ commands:
           when: on_fail
           command: |
             aws cloudformation delete-stack --stack-name udapeople-frontend-<< parameters.workflowID >>
-  create-dotenv-file:
-    description: Create .env file
-    steps:
-      - run:
-          name: Add env vars to .env file
-          command: |
-            echo ENVIRONMENT=$ENVIRONMENT > "./backend/.env"
-            echo TYPEORM_CONNECTION=$TYPEORM_CONNECTION >> "./backend/.env"
-            echo TYPEORM_MIGRATIONS_DIR=$TYPEORM_MIGRATIONS_DIR >> "./backend/.env"
-            echo TYPEORM_ENTITIES=$TYPEORM_ENTITIES >> "./backend/.env"
-            echo TYPEORM_MIGRATIONS=$TYPEORM_MIGRATIONS >> "./backend/.env"
-            echo TYPEORM_HOST=$TYPEORM_HOST >> "./backend/.env"
-            echo TYPEORM_PORT=$TYPEORM_PORT >> "./backend/.env"
-            echo TYPEORM_USERNAME=$TYPEORM_USERNAME >> "./backend/.env"
-            echo TYPEORM_PASSWORD=$TYPEORM_PASSWORD >> "./backend/.env"
-            echo TYPEORM_DATABASE=$TYPEORM_DATABASE >> "./backend/.env"
   revert-migrations:
     description: Revert the last migration if successfully run in the current workflow.
     steps:
@@ -83,8 +306,35 @@ commands:
               npm install
               npm run migrations:revert
             fi
+  # create-dotenv-file:
+  #   description: Create .env file
+  #   steps:
+  #     - run:
+  #         name: Add env vars to .env file
+  #         command: |
+  #           echo ENVIRONMENT=$ENVIRONMENT > "./backend/.env"
+  #           echo TYPEORM_CONNECTION=$TYPEORM_CONNECTION >> "./backend/.env"
+  #           echo TYPEORM_MIGRATIONS_DIR=$TYPEORM_MIGRATIONS_DIR >> "./backend/.env"
+  #           echo TYPEORM_ENTITIES=$TYPEORM_ENTITIES >> "./backend/.env"
+  #           echo TYPEORM_MIGRATIONS=$TYPEORM_MIGRATIONS >> "./backend/.env"
+  #           echo TYPEORM_HOST=$TYPEORM_HOST >> "./backend/.env"
+  #           echo TYPEORM_PORT=$TYPEORM_PORT >> "./backend/.env"
+  #           echo TYPEORM_USERNAME=$TYPEORM_USERNAME >> "./backend/.env"
+  #           echo TYPEORM_PASSWORD=$TYPEORM_PASSWORD >> "./backend/.env"
+  #           echo TYPEORM_DATABASE=$TYPEORM_DATABASE >> "./backend/.env"
+
+#----------------------------------------------------------------
+# Orbs
+#----------------------------------------------------------------
+orbs:
+  slack: circleci/slack@4.10.1
+
+#----------------------------------------------------------------
+# Jobs
+#---------------------------------------------------------------- 
             
 jobs:
+
   build-frontend:
     docker:
       - image: cimg/node:13.8.0
@@ -92,13 +342,7 @@ jobs:
       - checkout
       - restore_cache:
           keys: [frontend-deps]
-      - run:
-          name: Build front-end
-          command: |
-            cd frontend
-            npm install
-            npm run build
-            sudo npm install typescript -g
+      - cmd_build-frontend
       - save_cache:
           paths: [frontend/node_modules]
           key: frontend-deps
@@ -107,21 +351,11 @@ jobs:
     docker:
       - image: cimg/node:13.8.0
     steps:
-      - checkout
-#      - restore_cache:
-#          keys: [backend-deps]
-      - create-dotenv-file
-      - run:
-          name: Back-end build
-          command: |
-            cd backend
-            echo "1"
-            sudo npm install typescript -g
-            echo "1-1"
-            sudo npm install
-            echo "2"
-            sudo npm run build
-            echo "3"
+      - checkout    
+      - restore_cache:
+          keys: [backend-deps]
+      #- create-dotenv-file
+      - cmd_build-backend
       - save_cache:
           paths: [backend/node_modules]
           key: backend-deps
@@ -133,12 +367,10 @@ jobs:
       - checkout
       - restore_cache:
           keys: [frontend-deps]
-      - run:
-          name: front-end unit test
-          command: |
-            cd frontend
-            sudo npm install
-            sudo npm test
+      - cmd_test-frontend
+      - save_cache:
+          paths: [frontend/node_modules]
+          key: frontend-deps
                 
   test-backend:
     docker:
@@ -147,12 +379,10 @@ jobs:
       - checkout
       - restore_cache:
           keys: [backend-deps]
-      - run:
-          name: Back-end unit test
-          command: |
-            cd backend
-            sudo npm install
-            sudo npm test --updateSnapshot
+      - cmd_test-backend
+      - save_cache:
+          paths: [backend/node_modules]
+          key: backend-deps
             
   scan-frontend:
     docker:
@@ -161,15 +391,10 @@ jobs:
       - checkout
       - restore_cache:
           keys: [frontend-deps]
-      - run:
-          name: front-end scan
-          command: |
-            cd frontend
-            npm install --save
-            exit 0
-            npm audit fix --audit-level=critical --force
-            npm audit fix --force
-            npm audit --audit-level=critical
+      - cmd_scan-frontend
+      - save_cache:
+          paths: [frontend/node_modules]
+          key: frontend-deps
 
   scan-backend:
     docker:
@@ -178,46 +403,42 @@ jobs:
       - checkout
       - restore_cache:
           keys: [backend-deps]
-      - run:
-          name: Back-end scan
-          command: |
-            cd backend
-            sudo npm install
-            sudo npm audit fix --audit-level=critical --force
-            sudo npm audit fix --audit-level=critical --force
-            sudo npm audit --audit-level=critical
+      - cmd_scan-backend
+      - save_cache:
+          paths: [backend/node_modules]
+          key: backend-deps
+
+  notify:
+    docker:
+      - image: "cimg/base:stable"
+    steps:
+      - slack/notify:
+          custom: |
+            {
+              "blocks": [
+                {
+                  "type": "section",
+                  "fields": [
+                    {
+                      "type": "plain_text",
+                      "text": "*This is a text notification*",
+                      "emoji": true
+                    }
+                  ]
+                }
+              ]
+            }
+          event: always
 
   deploy-infrastructure:
     docker:
       - image: cimg/base:stable
     steps:
       - checkout
-      - install_awscli
-      - run:
-          name: Ensure back-end infrastructure exists
-          command: |
-            aws cloudformation deploy \
-              --template-file .circleci/files/backend.yml \
-              --tags project=udapeople \
-              --stack-name "udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}" \
-              --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}"
-      - run:
-          name: Ensure front-end infrastructure exist
-          command: |
-            aws cloudformation deploy \
-              --template-file .circleci/files/frontend.yml \
-              --tags project=udapeople \
-              --stack-name "udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}" \
-              --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}"
-      - run:
-          name: Add back-end ip to ansible inventory
-          command: |
-            BACKEND_PUBLIC_IP=$(aws ec2 describe-instances \
-              --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" \
-              --query 'Reservations[*].Instances[*].PublicIpAddress' \
-              --output text)
-            echo $BACKEND_PUBLIC_IP >> .circleci/ansible/inventory.txt
-            cat .circleci/ansible/inventory.txt
+      - cmd_awscli
+      - cmd_check-backend-infra
+      - cmd_check-frontend-infra
+      - cmd_add-backend-inventory
       - persist_to_workspace:
           root: ~/
           paths:
@@ -229,29 +450,13 @@ jobs:
       - image: cimg/base:stable
     steps:
       - checkout
-      - install_awscli
+      - cmd_awscli
       - add_ssh_keys:
           fingerprints: ["27:4e:39:ad:07:93:4a:f8:f0:94:66:ec:fd:8d:46:9f"]
       - attach_workspace:
           at: /tmp/workspace
-      - run:
-          name: Install dependencies
-          command: |
-            sudo -E apt-add-repository ppa:ansible/ansible
-            sudo apt update
-            sudo apt install ansible
-      - run:
-          name: Configure server
-          working_directory: .circleci/ansible/
-          command: |
-            echo "[web]" > inventory.txt
-            BACKEND_PUBLIC_IF=$(aws ec2 describe-instances \
-              --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" \
-              --query 'Reservations[*].Instances[*].PublicIpAddress' \
-              --output text)
-            echo $BACKEND_PUBLIC_IF >> inventory.txt
-            cat inventory.txt
-            ansible-playbook -i inventory.txt configure-server.yml
+      - cmd_configure-infra-dep
+      - cmd_configure-server
       - destroy-environment
 
   run-migrations:
@@ -259,25 +464,11 @@ jobs:
       - image: cimg/node:13.8.0
     steps:
       - checkout
-      - install_awscli
-      - create-dotenv-file
+      - cmd_awscli
+      #- create-dotenv-file
       - attach_workspace:
             at: ~/
-      - run:
-          name: Prepare NodeJS
-          command: |
-              cd backend
-              sudo npm cache clean --force
-              sudo rm -rf node_modules
-              sudo npm install
-              npm run migrations:revert
-              npm run migrations > migrations_dump.txt
-              cat migrations_dump.txt
-              if grep -q "has been executed successfully." migrations_dump.txt
-              then
-                  curl --insecure https://kvdb.io/YHfkL8imZwJhHwV2UGVznq/migration_${CIRCLE_WORKFLOW_ID:0:7} -d '1'
-              fi
-              echo "3"
+      - cmd_prepare-nodejs
       - destroy-environment
 
   deploy-frontend:
@@ -285,78 +476,31 @@ jobs:
       - image: cimg/node:13.8.0
     steps:
       - checkout
-      - install_awscli
-      - install_nodejs
+      - cmd_awscli
+      - cmd_nodejs
       - restore_cache:
           keys: [frontend-deps]
-      - run:
-          name: Get backend url
-          command: |
-            cd frontend
-            API_URL=$(aws ec2 describe-instances \
-              --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" \
-              --query 'Reservations[*].Instances[*].PublicIpAddress' \
-              --output text)
-            echo "API_URL=http://${API_URL}:3030" > ".env"
-            echo "ENVIRONMENT=production" >> ".env"
-            echo "NODE_ENV=production" >> ".env"
-            cat .env
-            npm install
-            sudo npm install typescript -g
-            npm run build
-            aws s3 cp dist s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --recursive
-            echo "s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7}"
+      - cmd_get-backend-url
       - persist_to_workspace:
           root: ~/
           paths:
             - project/frontend/dist
       - destroy-environment
-      # Here's where you will add some code to rollback on failure      
                     
   deploy-backend:
     docker:
       - image: cimg/node:13.8.0
     steps:
       - checkout
-      - install_awscli
-      - install_nodejs
-      - install_ansible
-      - create-dotenv-file
+      - cmd_awscli
+      - cmd_nodejs
+      - cmd_ansible
+      #- create-dotenv-file
       - add_ssh_keys:
           fingerprints: ["27:4e:39:ad:07:93:4a:f8:f0:94:66:ec:fd:8d:46:9f"]
-      - run:
-          name: Install dependencies
-          command: |
-            cd backend
-            npm install
-      - run:
-          name: Package backend
-          command: |
-            cd backend
-            sudo npm install typescript -g
-            npm install
-            npm run build
-            tar -czf artifact.tar.gz dist/* package*
-            cd ..
-            sudo cp backend/artifact.tar.gz /home/
-      - run:
-          name: Deploy backend
-          command: |
-            export TYPEORM_MIGRATIONS_DIR=./migrations
-            export TYPEORM_ENTITIES=./modules/domain/**/*.entity{.ts,.js}
-            export TYPEORM_MIGRATIONS=./migrations/*.ts
-            cd .circleci/ansible/
-            echo "[web]" > inventory.txt
-            BACKEND_PUBLIC_IF=$(aws ec2 describe-instances \
-              --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" \
-              --query 'Reservations[*].Instances[*].PublicIpAddress' \
-              --output text)
-            echo $BACKEND_PUBLIC_IF >> inventory.txt
-            cat inventory.txt
-            sudo sed -i 's/host_key_checking = True/host_key_checking = False/g' /etc/ansible/ansible.cfg
-            sudo sed -i 's/host_key_checking=True/host_key_checking = False/g' /etc/ansible/ansible.cfg
-            ANSIBLE_HOST_KEY_CHECKING=False
-            ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -i inventory.txt deploy-backend.yml
+      - cmd_deploy-backend-dep
+      - cmd_deploy-backend-packages
+      - cmd_deploy-backend
       - destroy-environment
 
   smoke-test:
@@ -364,38 +508,12 @@ jobs:
       - image: cimg/node:13.8.0
     steps:
       - checkout
-      - install_awscli
-      - install_nodejs
-      - install_ansible
-      - create-dotenv-file
-      # Checkout code from git
-      - run:
-          name: Backend Smoke Test
-          command: |
-            BACKEND_PUBLIC_IF=$(aws ec2 describe-instances \
-              --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" \
-              --query 'Reservations[*].Instances[*].PublicIpAddress' \
-              --output text)
-            if curl -s http://${BACKEND_PUBLIC_IF}:3030/api/status | grep -i "ok"
-            then
-              echo "Backend Success, but this is intentional error :)"
-              exit 0
-            else
-              echo "Backend Fail!"
-              exit 1
-            fi
-      - run:
-          name: Frontend smoke test.
-          command: |
-            FRONTEND_URL="http://udapeople-${CIRCLE_WORKFLOW_ID:0:7}.s3-website-${AWS_DEFAULT_REGION}.amazonaws.com"
-            if curl -s $FRONTEND_URL | grep -i "Welcome"
-            then
-              echo "Frontend Success!"
-              exit 0
-            else
-              echo "Frontend Fail!"
-              exit 1
-            fi
+      - cmd_awscli
+      - cmd_nodejs
+      - cmd_ansible
+      #- create-dotenv-file
+      - cmd_smoke-backend
+      - cmd_smoke-frontend
       - destroy-environment
 
   cloudfront-update:
@@ -466,9 +584,10 @@ workflows:
           requires: [build-backend]
       - scan-frontend:
           requires: [build-frontend]
+      - notify:
+          context: slack-secrets
       - deploy-infrastructure:
           requires: [test-frontend, test-backend, scan-frontend, scan-backend]
-#         requires: [build-frontend,build-backend]1xx
           filters:
             branches:
               only: [main]
@@ -482,7 +601,7 @@ workflows:
           requires: [run-migrations]
       - smoke-test:
           requires: [deploy-backend, deploy-frontend]
-      - cloudfront-update:
-          requires: [smoke-test]
-      - cleanup:
-         requires: [cloudfront-update]
+      # - cloudfront-update:
+      #     requires: [smoke-test]
+      # - cleanup:
+      #    requires: [cloudfront-update]
