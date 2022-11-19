@@ -18,7 +18,7 @@
       sudo apt install tar gzip nodejs npm
 
       cd ~/backend-app
-      npm install typescript -g
+      npm install typescript
       npm i
 
 - name: "Exec PM2"
