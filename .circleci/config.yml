@@ -235,7 +235,7 @@ commands:
             if curl -s $FRONTEND_URL | grep -i "Welcome"
             then
               echo "Frontend Success!"
-              exit 1
+              exit 0
             else
               echo "Frontend Fail!"
               exit 1
@@ -306,22 +306,28 @@ commands:
               npm install
               npm run migrations:revert
             fi
-  # create-dotenv-file:
-  #   description: Create .env file
-  #   steps:
-  #     - run:
-  #         name: Add env vars to .env file
-  #         command: |
-  #           echo ENVIRONMENT=$ENVIRONMENT > "./backend/.env"
-  #           echo TYPEORM_CONNECTION=$TYPEORM_CONNECTION >> "./backend/.env"
-  #           echo TYPEORM_MIGRATIONS_DIR=$TYPEORM_MIGRATIONS_DIR >> "./backend/.env"
-  #           echo TYPEORM_ENTITIES=$TYPEORM_ENTITIES >> "./backend/.env"
-  #           echo TYPEORM_MIGRATIONS=$TYPEORM_MIGRATIONS >> "./backend/.env"
-  #           echo TYPEORM_HOST=$TYPEORM_HOST >> "./backend/.env"
-  #           echo TYPEORM_PORT=$TYPEORM_PORT >> "./backend/.env"
-  #           echo TYPEORM_USERNAME=$TYPEORM_USERNAME >> "./backend/.env"
-  #           echo TYPEORM_PASSWORD=$TYPEORM_PASSWORD >> "./backend/.env"
-  #           echo TYPEORM_DATABASE=$TYPEORM_DATABASE >> "./backend/.env"
+  export-workflow:
+    description: Export old workflow
+    steps:
+      - run:
+          name: Export old workflow
+          command: |
+            export OLD_WORKFLOW_ID=$(aws cloudformation \
+              list-exports --query "Exports[?Name==\`WorkflowID\`].Value" \
+              --no-paginate --output text)
+            echo "OLD_WORKFLOW_ID: $OLD_WORKFLOW_ID"
+            curl --insecure https://kvdb.io/YHfkL8imZwJhHwV2UGVznq/old_wf -d "${OLD_WORKFLOW_ID}"
+  cloudfront-workflow:
+    description: Cloudfront workflow
+    steps:
+      - run:
+          name: Cloudfront workflow
+          command: |
+            aws cloudformation deploy \
+              --template-file .circleci/files/cloudfront.yml \
+              --parameter-overrides WorkflowID="${CIRCLE_WORKFLOW_ID:0:7}" \
+              --stack-name udapeople-deply-amira
+
 
 #----------------------------------------------------------------
 # Orbs
@@ -354,7 +360,6 @@ jobs:
       - checkout    
       - restore_cache:
           keys: [backend-deps]
-      #- create-dotenv-file
       - cmd_build-backend
       - save_cache:
           paths: [backend/node_modules]
@@ -465,7 +470,6 @@ jobs:
     steps:
       - checkout
       - cmd_awscli
-      #- create-dotenv-file
       - attach_workspace:
             at: ~/
       - cmd_prepare-nodejs
@@ -495,7 +499,6 @@ jobs:
       - cmd_awscli
       - cmd_nodejs
       - cmd_ansible
-      #- create-dotenv-file
       - add_ssh_keys:
           fingerprints: ["27:4e:39:ad:07:93:4a:f8:f0:94:66:ec:fd:8d:46:9f"]
       - cmd_deploy-backend-dep
@@ -511,7 +514,6 @@ jobs:
       - cmd_awscli
       - cmd_nodejs
       - cmd_ansible
-      #- create-dotenv-file
       - cmd_smoke-backend
       - cmd_smoke-frontend
       - destroy-environment
@@ -521,25 +523,11 @@ jobs:
       - image: cimg/node:13.8.0
     steps:
       - checkout
-      - install_awscli
-      - install_nodejs
-      - install_ansible
-      - create-dotenv-file
-      - run:
-          name: Export Old Workflow
-          command: |
-            export OLD_WORKFLOW_ID=$(aws cloudformation \
-              list-exports --query "Exports[?Name==\`WorkflowID\`].Value" \
-              --no-paginate --output text)
-            echo "OLD_WORKFLOW_ID: $OLD_WORKFLOW_ID"
-            curl --insecure https://kvdb.io/YHfkL8imZwJhHwV2UGVznq/old_wf -d "${OLD_WORKFLOW_ID}"
-      - run:
-          name: Update CloudFront Workflow
-          command: |
-            aws cloudformation deploy \
-              --template-file .circleci/files/cloudfront.yml \
-              --parameter-overrides WorkflowID="${CIRCLE_WORKFLOW_ID:0:7}" \
-              --stack-name udapeople-udaloayghreep123
+      - cmd_awscli
+      - cmd_nodejs
+      - cmd_ansible
+      - export-workflow
+      - cloudfront-workflow
       - destroy-environment
 
   cleanup:
@@ -601,7 +589,7 @@ workflows:
           requires: [run-migrations]
       - smoke-test:
           requires: [deploy-backend, deploy-frontend]
-      # - cloudfront-update:
-      #     requires: [smoke-test]
+      - cloudfront-update:
+          requires: [smoke-test]
       # - cleanup:
       #    requires: [cloudfront-update]

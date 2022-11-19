@@ -8,5 +8,9 @@
 - SCREENSHOT03 : /screenshots/SCREENSHOT03.png
 - SCREENSHOT04 : /screenshots/SCREENSHOT04.png , /screenshots/SCREENSHOT04-1.png
 - SCREENSHOT05 : /screenshots/SCREENSHOT05.png 
+- SCREENSHOT06 : /screenshots/SCREENSHOT06.png 
+- SCREENSHOT07 : /screenshots/SCREENSHOT07.png 
+
+
 
 - Presentation : presentation.pdf
