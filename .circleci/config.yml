@@ -293,7 +293,6 @@ commands:
           when: on_fail
           command: |
             aws cloudformation delete-stack --stack-name udapeople-frontend-<< parameters.workflowID >>
-      - revert-migrations
 
   revert-migrations:
     description: Revert the last migration if successfully run in the current workflow.
@@ -542,6 +541,7 @@ jobs:
       - cmd_ansible
       - cmd_smoke-backend
       - cmd_smoke-frontend
+      - revert-migrations
       - destroy-environment
 
   cloudfront-update:
