@@ -513,8 +513,8 @@ jobs:
           root: ~/
           paths:
             - project/frontend/dist
-      - destroy-environment:
-      - revert-migrations:
+      - destroy-environment
+      - revert-migrations
                     
   deploy-backend:
     docker:
@@ -529,8 +529,8 @@ jobs:
       - cmd_deploy-backend-dep
       - cmd_deploy-backend-packages
       - cmd_deploy-backend
-      - destroy-environment:
-      - revert-migrations:    
+      - destroy-environment
+      - revert-migrations   
 
   smoke-test:
     docker:
@@ -542,8 +542,8 @@ jobs:
       - cmd_ansible
       - cmd_smoke-backend
       - cmd_smoke-frontend
-      - destroy-environment:
-      - revert-migrations:
+      - destroy-environment
+      - revert-migrations
 
   cloudfront-update:
     docker:
