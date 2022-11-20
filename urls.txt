@@ -1,7 +1,7 @@
 - GitHub repository : https://github.com/amiraelsayed/Project3
-- S3 Bucket : http://udaproject-kk1j287dhjppmz437.s3-website-us-east-1.amazonaws.com/
-- CloudFront distribution :
-- Deployed application back-end in EC2 :
+- S3 Bucket : http://udapeople-3678517.s3-website-us-east-1.amazonaws.com/
+- CloudFront distribution : d2opturhb718ci.cloudfront.net
+- Deployed application back-end in EC2 : http://54.167.37.102:3030/api/status
 - Prometheus Server :
 - SCREENSHOT01 : /screenshots/SCREENSHOT01.png
 - SCREENSHOT02 : /screenshots/SCREENSHOT02.png
@@ -10,6 +10,11 @@
 - SCREENSHOT05 : /screenshots/SCREENSHOT05.png 
 - SCREENSHOT06 : /screenshots/SCREENSHOT06.png 
 - SCREENSHOT07 : /screenshots/SCREENSHOT07.png 
+- SCREENSHOT08 : /screenshots/SCREENSHOT08.png 
+
+- SCREENSHOT10 : /screenshots/SCREENSHOT10.png 
+
+
 
 
 

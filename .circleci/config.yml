@@ -327,6 +327,30 @@ commands:
               --template-file .circleci/files/cloudfront.yml \
               --parameter-overrides WorkflowID="${CIRCLE_WORKFLOW_ID:0:7}" \
               --stack-name udapeople-deply-amira
+  cleanup-workflow:
+    description: CGet old stack workflow id & cleanup
+    steps:
+      - run:
+          name: Get old stack workflow id & cleanup
+          command: |
+            export STACKS=$(aws cloudformation list-stacks --query "StackSummaries[*].StackName" \
+              --stack-status-filter CREATE_COMPLETE --no-paginate --output text)
+            echo "Stacks before clean-up:"
+            echo "${STACKS[@]}"
+            export OLD_WF=$(curl --insecure https://kvdb.io/YHfkL8imZwJhHwV2UGVznq/old_wf)
+            echo "Old Wrokflow ID:"
+            echo "${OLD_WF}"
+                        
+            if [ "${CIRCLE_WORKFLOW_ID:0:7}" == "${OLD_WF}" ];then
+              echo "Nothing to remove"
+            else
+              echo "Removing previous stacks/s3 ..."
+              aws s3 rm "s3://udapeople-${OLD_WF}" --recursive || echo "No S3 Bucket with that name ..."
+              aws cloudformation delete-stack --stack-name "udapeople-backend-${OLD_WF}" || echo "No stack with that name ..."
+              aws cloudformation delete-stack --stack-name "udapeople-frontend-${OLD_WF}" || echo "No stack with that name ..."
+            fi
+            echo "Stacks after clean-up:"
+            echo "${STACKS[@]}"
 
 
 #----------------------------------------------------------------
@@ -535,28 +559,8 @@ jobs:
       - image: cimg/node:13.8.0
     steps:
       - checkout
-      - install_awscli
-      - run:
-          name: Get old stack workflow id & cleanup
-          command: |
-            export STACKS=$(aws cloudformation list-stacks --query "StackSummaries[*].StackName" \
-              --stack-status-filter CREATE_COMPLETE --no-paginate --output text)
-            echo "Stacks before clean-up:"
-            echo "${STACKS[@]}"
-            export OLD_WF=$(curl --insecure https://kvdb.io/YHfkL8imZwJhHwV2UGVznq/old_wf)
-            echo "Old Wrokflow ID:"
-            echo "${OLD_WF}"
-                        
-            if [ "${CIRCLE_WORKFLOW_ID:0:7}" == "${OLD_WF}" ];then
-              echo "Nothing to remove"
-            else
-              echo "Removing previous stacks/s3 ..."
-              aws s3 rm "s3://udapeople-${OLD_WF}" --recursive || echo "No S3 Bucket with that name ..."
-              aws cloudformation delete-stack --stack-name "udapeople-backend-${OLD_WF}" || echo "No stack with that name ..."
-              aws cloudformation delete-stack --stack-name "udapeople-frontend-${OLD_WF}" || echo "No stack with that name ..."
-            fi
-            echo "Stacks after clean-up:"
-            echo "${STACKS[@]}"
+      - cmd_awscli
+      - cleanup-workflow
       - destroy-environment
 
 workflows:
@@ -591,5 +595,5 @@ workflows:
           requires: [deploy-backend, deploy-frontend]
       - cloudfront-update:
           requires: [smoke-test]
-      # - cleanup:
-      #    requires: [cloudfront-update]
+      - cleanup:
+          requires: [cloudfront-update]
