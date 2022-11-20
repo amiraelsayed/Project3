@@ -2,7 +2,7 @@
 - S3 Bucket : http://udapeople-3678517.s3-website-us-east-1.amazonaws.com/
 - CloudFront distribution : d2opturhb718ci.cloudfront.net
 - Deployed application back-end in EC2 : http://54.167.37.102:3030/api/status
-- Prometheus Server :
+- Prometheus Server : http://ec2-44-201-122-199.compute-1.amazonaws.com:9090/targets
 - SCREENSHOT01 : /screenshots/SCREENSHOT01.png
 - SCREENSHOT02 : /screenshots/SCREENSHOT02.png
 - SCREENSHOT03 : /screenshots/SCREENSHOT03.png
@@ -11,11 +11,13 @@
 - SCREENSHOT06 : /screenshots/SCREENSHOT06.png 
 - SCREENSHOT07 : /screenshots/SCREENSHOT07.png 
 - SCREENSHOT08 : /screenshots/SCREENSHOT08.png 
-
+- SCREENSHOT09 : /screenshots/SCREENSHOT09.png 
 - SCREENSHOT10 : /screenshots/SCREENSHOT10.png 
-
-
-
-
-
+- SCREENSHOT11 : /screenshots/SCREENSHOT11.png
+- SCREENSHOT12 : /screenshots/SCREENSHOT12.png
+- URL01_SCREENSHOT : /screenshots/URL01_SCREENSHOT.png 
+- URL02_SCREENSHOT : /screenshots/URL02_SCREENSHOT.png 
+- URL03_SCREENSHOT : /screenshots/URL03_SCREENSHOT.png 
+- URL04_SCREENSHOT : /screenshots/URL04_SCREENSHOT.png 
+- URL05_SCREENSHOT : /screenshots/URL05_SCREENSHOT.png 
 - Presentation : presentation.pdf
