@@ -235,7 +235,7 @@ commands:
             if curl -s $FRONTEND_URL | grep -i "Welcome"
             then
               echo "Frontend Success!"
-              exit 0
+              exit 1
             else
               echo "Frontend Fail!"
               exit 1
@@ -293,6 +293,8 @@ commands:
           when: on_fail
           command: |
             aws cloudformation delete-stack --stack-name udapeople-frontend-<< parameters.workflowID >>
+      - revert-migrations
+
   revert-migrations:
     description: Revert the last migration if successfully run in the current workflow.
     steps:
