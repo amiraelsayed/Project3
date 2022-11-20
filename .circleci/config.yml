@@ -515,11 +515,7 @@ jobs:
           paths:
             - project/frontend/dist
       - destroy-environment:
-          id: ${CIRCLE_WORKFLOW_ID:0:7}
-          when: on_fail
       - revert_migrations:
-          id: ${CIRCLE_WORKFLOW_ID:0:7}
-          when: on_fail
                     
   deploy-backend:
     docker:
@@ -535,11 +531,7 @@ jobs:
       - cmd_deploy-backend-packages
       - cmd_deploy-backend
       - destroy-environment:
-          id: ${CIRCLE_WORKFLOW_ID:0:7}
-          when: on_fail
-      - revert_migrations:
-          id: ${CIRCLE_WORKFLOW_ID:0:7}
-          when: on_fail      
+      - revert_migrations:    
 
   smoke-test:
     docker:
@@ -552,11 +544,7 @@ jobs:
       - cmd_smoke-backend
       - cmd_smoke-frontend
       - destroy-environment:
-          id: ${CIRCLE_WORKFLOW_ID:0:7}
-          when: on_fail
       - revert_migrations:
-          id: ${CIRCLE_WORKFLOW_ID:0:7}
-          when: on_fail
 
   cloudfront-update:
     docker:
