@@ -235,7 +235,7 @@ commands:
             if curl -s $FRONTEND_URL | grep -i "Welcome"
             then
               echo "Frontend Success!"
-              exit 1
+              exit 0
             else
               echo "Frontend Fail!"
               exit 1
