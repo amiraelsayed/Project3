@@ -9,15 +9,15 @@
 - SCREENSHOT04 : /screenshots/SCREENSHOT04.png , /screenshots/SCREENSHOT04-1.png
 - SCREENSHOT05 : /screenshots/SCREENSHOT05.png 
 - SCREENSHOT06 : /screenshots/SCREENSHOT06.png 
-- SCREENSHOT07 : /screenshots/SCREENSHOT07.png 
+- SCREENSHOT07 : /screenshots/SCREENSHOT07.png, /screenshots/SCREENSHOT07-1.png , /screenshots/SCREENSHOT07-2.png 
 - SCREENSHOT08 : /screenshots/SCREENSHOT08.png 
 - SCREENSHOT09 : /screenshots/SCREENSHOT09.png 
 - SCREENSHOT10 : /screenshots/SCREENSHOT10.png 
-- SCREENSHOT11 : /screenshots/SCREENSHOT11.png
-- SCREENSHOT12 : /screenshots/SCREENSHOT12.png
+- SCREENSHOT11 : /screenshots/SCREENSHOT11.png, /screenshots/SCREENSHOT11-1.png, /screenshots/SCREENSHOT11-2.png, /screenshots/SCREENSHOT11-3.png
+- SCREENSHOT12 : /screenshots/SCREENSHOT12.png, /screenshots/SCREENSHOT12-1.png, /screenshots/SCREENSHOT12-2.png
 - URL01_SCREENSHOT : /screenshots/URL01_SCREENSHOT.png 
 - URL02_SCREENSHOT : /screenshots/URL02_SCREENSHOT.png 
-- URL03_SCREENSHOT : /screenshots/URL03_SCREENSHOT.png 
+- URL03_SCREENSHOT : /screenshots/URL03_SCREENSHOT.png , /screenshots/URL03_SCREENSHOT-1.png 
 - URL04_SCREENSHOT : /screenshots/URL04_SCREENSHOT.png 
 - URL05_SCREENSHOT : /screenshots/URL05_SCREENSHOT.png 
 - Presentation : presentation.pdf
